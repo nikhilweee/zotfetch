@@ -1,2 +1,2 @@
-zotfetch-green-instead =
-    .label = Make It Green Instead
+zotfetch-fetch-attachment =
+    .label = Zotfetch: Fetch Missing Attachment
