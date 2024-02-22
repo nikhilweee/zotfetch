@@ -2,7 +2,9 @@
 
 A Zotero plugin to fetch missing attachments.
 
-⚠️ This plugin is still under active development. In the meanwhile, you can check out [my blog post](https://nikhilweee.me/blog/2024/zotero-file-sync/) and [this gist](https://gist.github.com/nikhilweee/fdf7b471a31c2f1c2b9527c51d734d86) which led to the development of this extension.
+> ⚠️ This plugin is still under active development.
+
+In the meanwhile, you can check out [my blog post](https://nikhilweee.me/blog/2024/zotero-file-sync/) and [this gist](https://gist.github.com/nikhilweee/fdf7b471a31c2f1c2b9527c51d734d86) which led to the development of this extension.
 
 # Developer Documentation
 
@@ -49,13 +51,13 @@ Firefox has two update channels.
 
 ## References
 
-- The best way to learn about Zotero 7 is this page:
+- The best way to learn about Zotero 7 is this page:  
   https://www.zotero.org/support/dev/zotero_7_for_developers
-- There is an older page about developing plugins, which is outdated:
+- There is an older page about developing plugins, which is outdated:  
   https://www.zotero.org/support/dev/client_coding/plugin_development
-- Zotero's bootstrapped plugins are based off of Firefox:
+- Zotero's bootstrapped plugins are based off of Firefox:  
   http://www.devdoc.net/web/developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Bootstrapped_Extensions.html
-- Wiki page about Bootstrapped Plugins:
+- Wiki page about Bootstrapped Plugins:  
   https://wiki.mozilla.org/Extension_Manager:Bootstrapped_Extensions
-- GitHub template for developing Zotero extensions:
+- GitHub template for developing Zotero extensions:  
   https://github.com/windingwind/zotero-plugin-template
