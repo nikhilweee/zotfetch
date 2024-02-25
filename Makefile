@@ -19,5 +19,5 @@ pack:                       ## Pack XPI
 
 run:                        ## Run Zotero
 	/Applications/Zotero.app/Contents/MacOS/zotero \
-	-ZoteroDebugText -jsconsole -devtools -debugger
+	--ZoteroDebugText --jsconsole --debugger
 ## -----------------------------------------------------------------------------
