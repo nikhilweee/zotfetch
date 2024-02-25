@@ -31,10 +31,10 @@ You can also see debug output by clicking `Help` > `Debug Output Logging` >
 
 -   Zotero is based on the Firefox platform. This means Zotero Plugins are also
     based on the Firefox platform.
--   Firefox used to support overlay plugins, which used to support XUL overlays to
-    inject elements into the DOM of existing windows.
--   It then moved to bootstrapped plugins, which programmatically modify the DOM,
-    and can be enabled or disabled without restarting Firefox.
+-   Firefox used to support overlay plugins, which used to support XUL overlays
+    to inject elements into the DOM of existing windows.
+-   It then moved to bootstrapped plugins, which programmatically modify the
+    DOM, and can be enabled or disabled without restarting Firefox.
 -   Firefox has since moved to the WebExtensions API for its plugins, but Zotero
     is more comfortable with bootstrapped plugins.
 
@@ -64,6 +64,26 @@ with a list of selected items. If we are able to register a right click menu
 item and implement a function which iterates over selected items and completes
 the job of replacing PDFs, we should be able to develop this extension.
 
+## Reloading Addon during Development
+
+You may want to make source code changes and then check how it works on the app
+during development. The best way I found is to open Zotero with the `--debugger`
+flag. Then, open Firefox and go to `about:debugging`. Establish a connection to
+`localhost:6100` and you should be connected to browser devtools.
+
+Another option is to open Zotero with the `--jsdebugger` flag. This script will
+uninstall the attachment.
+
+```js
+let { AddonManager } = ChromeUtils.import(
+    "resource://gre/modules/AddonManager.jsm"
+);
+let addon = await AddonManager.getAddonByID("zotfetch@nikhilweee.me");
+if (addon) {
+    await addon.uninstall();
+}
+```
+
 ## References
 
 -   The best way to learn about Zotero 7 is this page:  
@@ -78,3 +98,9 @@ the job of replacing PDFs, we should be able to develop this extension.
     https://github.com/windingwind/zotero-plugin-template
 -   Search GitHub for repositories tagged `zotero-plugin`:  
     https://github.com/topics/zotero-plugin
+
+## Older Documentation
+
+-   https://searchfox.org/
+-   https://firefox-source-docs.mozilla.org/
+-   https://udn.realityripple.com/docs/Mozilla
