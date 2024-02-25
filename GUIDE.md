@@ -29,14 +29,14 @@ You can also see debug output by clicking `Help` > `Debug Output Logging` >
 
 ## History
 
-- Zotero is based on the Firefox platform. This means Zotero Plugins are also
-  based on the Firefox platform.
-- Firefox used to support overlay plugins, which used to support XUL overlays to
-  inject elements into the DOM of existing windows.
-- It then moved to bootstrapped plugins, which programmatically modify the DOM,
-  and can be enabled or disabled without restarting Firefox.
-- Firefox has since moved to the WebExtensions API for its plugins, but Zotero
-  is more comfortable with bootstrapped plugins.
+-   Zotero is based on the Firefox platform. This means Zotero Plugins are also
+    based on the Firefox platform.
+-   Firefox used to support overlay plugins, which used to support XUL overlays to
+    inject elements into the DOM of existing windows.
+-   It then moved to bootstrapped plugins, which programmatically modify the DOM,
+    and can be enabled or disabled without restarting Firefox.
+-   Firefox has since moved to the WebExtensions API for its plugins, but Zotero
+    is more comfortable with bootstrapped plugins.
 
 ## ESR
 
@@ -45,9 +45,9 @@ Firefox has two update channels.
 1. A rapid release channel which gets updates every four weeks.
 2. An extended release channel (ESR) which gets updates every 42 weeks.
 
-- The latest ESR is Firefox 115, but Zotero 7 is based on Firefox 102.
-- Here is a cool website to keep track of Firefox releases:
-  https://whattrainisitnow.com/
+-   The latest ESR is Firefox 115, but Zotero 7 is based on Firefox 102.
+-   Here is a cool website to keep track of Firefox releases:
+    https://whattrainisitnow.com/
 
 ## Motivation
 
@@ -66,13 +66,15 @@ the job of replacing PDFs, we should be able to develop this extension.
 
 ## References
 
-- The best way to learn about Zotero 7 is this page:  
-  https://www.zotero.org/support/dev/zotero_7_for_developers
-- There is an older page about developing plugins, which is outdated:  
-  https://www.zotero.org/support/dev/client_coding/plugin_development
-- Zotero's bootstrapped plugins are based off of Firefox:  
-  http://www.devdoc.net/web/developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Bootstrapped_Extensions.html
-- Wiki page about Bootstrapped Plugins:  
-  https://wiki.mozilla.org/Extension_Manager:Bootstrapped_Extensions
-- GitHub template for developing Zotero extensions:  
-  https://github.com/windingwind/zotero-plugin-template
+-   The best way to learn about Zotero 7 is this page:  
+    https://www.zotero.org/support/dev/zotero_7_for_developers
+-   There is an older page about developing plugins, which is outdated:  
+    https://www.zotero.org/support/dev/client_coding/plugin_development
+-   Zotero's bootstrapped plugins are based off of Firefox:  
+    http://www.devdoc.net/web/developer.mozilla.org/en-US/docs/Mozilla/Add-ons/Bootstrapped_Extensions.html
+-   Wiki page about Bootstrapped Plugins:  
+    https://wiki.mozilla.org/Extension_Manager:Bootstrapped_Extensions
+-   GitHub template for developing Zotero extensions:  
+    https://github.com/windingwind/zotero-plugin-template
+-   Search GitHub for repositories tagged `zotero-plugin`:  
+    https://github.com/topics/zotero-plugin

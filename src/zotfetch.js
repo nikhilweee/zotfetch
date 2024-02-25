@@ -20,28 +20,18 @@ Zotfetch = {
     addToWindow(window) {
         let doc = window.document;
 
-        // Add a stylesheet to the main Zotero pane
-        let link1 = doc.createElement("link");
-        link1.id = "zotfetch-stylesheet";
-        link1.type = "text/css";
-        link1.rel = "stylesheet";
-        link1.href = this.rootURI + "style.css";
-        doc.documentElement.appendChild(link1);
-        this.storeAddedElement(link1);
-
         // Use Fluent for localization
         window.MozXULElement.insertFTLIfNeeded("zotfetch.ftl");
 
-        // Add menu option
+        // Add menuitem
         let menuitem = doc.createXULElement("menuitem");
-        menuitem.id = "make-it-green-instead";
-        menuitem.setAttribute("type", "checkbox");
-        menuitem.setAttribute("data-l10n-id", "zotfetch-green-instead");
-        // MozMenuItem#checked is available in Zotero 7
+        menuitem.id = "zotfetch-menuitem";
+        menuitem.setAttribute("data-l10n-id", "zotfetch-fetch-attachment");
         menuitem.addEventListener("command", () => {
-            Zotfetch.toggleGreen(window, menuitem.checked);
+            Zotfetch.fetchAttachments(window);
         });
-        doc.getElementById("menu_viewPopup").appendChild(menuitem);
+        // Add menuitem to Tools menu
+        doc.getElementById("menu_ToolsPopup").appendChild(menuitem);
         this.storeAddedElement(menuitem);
     },
 
@@ -77,11 +67,48 @@ Zotfetch = {
         }
     },
 
-    toggleGreen(window, enabled) {
-        window.document.documentElement.toggleAttribute(
-            "data-green-instead",
-            enabled
-        );
+    async replacePDF(item) {
+        // filter annotations, attachments, notes
+        if (!item.isRegularItem()) {
+            return;
+        }
+        let fileExists = [];
+        let oldPDF = null;
+        // filter multiple or existing PDFs
+        const attachmentIDs = item.getAttachments();
+        for (let itemID of attachmentIDs) {
+            const attachment = Zotero.Items.get(itemID);
+            if (!attachment.isPDFAttachment()) {
+                continue;
+            }
+            oldPDF = attachment;
+            const exists = await attachment.fileExists();
+            fileExists.push(exists);
+        }
+        if (fileExists.length > 1) {
+            return; // multiple PDFs found
+        }
+        if (fileExists.pop()) {
+            return; // PDF already exists
+        }
+        this.log("Updating PDF for", item.getDisplayTitle());
+        // manually invoke "Find Available PDF"
+        const newPDF = await Zotero.Attachments.addAvailablePDF(item);
+        if (oldPDF) {
+            await OS.File.move(newPDF.getFilePath(), oldPDF.getFilePath());
+            await newPDF.eraseTx();
+        }
+    },
+
+    async fetchAttachments(window) {
+        // loop replacePDF() over all items in our library
+        const libraryID = Zotero.Libraries.userLibraryID;
+        let items = await Zotero.Items.getAll(libraryID);
+
+        items.forEach(async (item, idx) => {
+            this.log(`Processing item ${idx}`);
+            await this.replacePDF(item);
+        });
     },
 
     async main() {
