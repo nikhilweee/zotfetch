@@ -104,3 +104,9 @@ if (addon) {
 -   https://searchfox.org/
 -   https://firefox-source-docs.mozilla.org/
 -   https://udn.realityripple.com/docs/Mozilla
+
+## Uncategorized
+
+-   A lot of Zotero's classes define functions within objects, and there is no
+    class keyword. Although, the new keyword is used to initialize objects.
+-   https://github.com/retorquere/zotero-better-bibtex/tree/master/test/fixtures/debug-bridge
