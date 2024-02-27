@@ -74,14 +74,22 @@ flag. Then, open Firefox and go to `about:debugging`. Establish a connection to
 Another option is to open Zotero with the `--jsdebugger` flag. This script will
 uninstall the attachment.
 
+[This section](https://www.zotero.org/support/dev/client_coding/plugin_development)
+from the documentation about setting up a plugin development environment is
+still relevant.
+
 ```js
-let { AddonManager } = ChromeUtils.import(
+Services.obs.notifyObservers(null, "startupcache-invalidate", null);
+var { AddonManager } = ChromeUtils.import(
     "resource://gre/modules/AddonManager.jsm"
 );
-let addon = await AddonManager.getAddonByID("zotfetch@nikhilweee.me");
-if (addon) {
-    await addon.uninstall();
+var addon = await AddonManager.getAddonByID("zotfetch@nikhilweee.me");
+async function reloadAddon(addon) {
+    await addon.disable();
+    await addon.reload();
+    await addon.enable();
 }
+await reloadAddon(addon);
 ```
 
 ## References
@@ -100,6 +108,8 @@ if (addon) {
     https://github.com/topics/zotero-plugin
 
 ## Older Documentation
+
+Search for XUL Documentation
 
 -   https://searchfox.org/
 -   https://firefox-source-docs.mozilla.org/

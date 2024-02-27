@@ -61,7 +61,10 @@ Zotfetch = {
         for (let id of this.addedElementIDs) {
             doc.getElementById(id)?.remove();
         }
-        doc.querySelector('[href="zotfetch.ftl"]').remove();
+        const ftl = doc.querySelector('[href="zotfetch.ftl"]');
+        if (ftl) {
+            ftl.remove();
+        }
     },
 
     removeFromAllWindows() {
@@ -116,12 +119,50 @@ Zotfetch = {
         return { error: null, attachment: newPDF };
     },
 
-    async fetchAttachments(window) {
+    showProgressWindow() {
+        let icon = "chrome://zotero/skin/treeitem-attachment-pdf.png";
+        let progressWin = new Zotero.ProgressWindow();
+        let title = "ZotFetch";
+        progressWin.changeHeadline(title);
+        let itemProgress = new progressWin.ItemProgress(
+            icon,
+            "No items to relocate!"
+        );
+        progressWin.show();
+        itemProgress.setProgress(100);
+        itemProgress.setIcon(icon);
+        progressWin.startCloseTimer(4000);
+    },
+
+    showProgressQueue() {
+        var progressQueue = Zotero.ProgressQueues.get("zotfetch");
+        if (!progressQueue) {
+            progressQueue = Zotero.ProgressQueues.create({
+                // TODO: Use terms from zotfetch.ftl
+                id: "zotfetch",
+                title: "pane.items.menu.findAvailablePDF.multiple",
+                // title: "zf-relocate",
+                columns: ["general.item", "general.pdf"],
+            });
+            progressQueue.addListener("cancel", () => (queue = []));
+            // debugger;
+        }
+
+        var dialog = progressQueue.getDialog();
+        dialog.showMinimizeButton(false);
+        // dialog.setStatus(`${eligibleItems.length} PDFs added.`);
+        dialog.open();
+        this.currentWindow.console.log(Zotero.getMainWindows())
+        return progressQueue;
+    },
+
+    async fetchAttachments() {
         Components.utils.import("resource://gre/modules/osfile.jsm");
 
         // loop replacePDF() over all items in our library
         const libraryID = Zotero.Libraries.userLibraryID;
-        let items = await Zotero.Items.getAll(libraryID);
+        // let items = await Zotero.Items.getAll(libraryID);
+        let items = Zotero.getActiveZoteroPane().getSelectedItems();
 
         let eligibleItems = [];
         for (const item of items) {
@@ -132,37 +173,33 @@ Zotfetch = {
             }
         }
 
-        this.log(items);
-        this.log(eligibleItems);
+        // debugger;
 
-        // Create progress queue
-        var progressQueue = Zotero.ProgressQueues.get("zotfetch");
-        if (!progressQueue) {
-            progressQueue = Zotero.ProgressQueues.create({
-                // TODO: Use terms from zotfetch.ftl
-                id: "zotfetch",
-                title: "pane.items.menu.findAvailablePDF.multiple",
-                columns: ["general.item", "general.pdf"],
-            });
-            progressQueue.addListener("cancel", () => (queue = []));
+        // If no eligible items, show a popup
+        if (!eligibleItems.length) {
+            this.showProgressWindow();
+            return;
         }
 
-        debugger;
-
-        var dialog = progressQueue.getDialog();
-        dialog.showMinimizeButton(false);
-        // dialog.setStatus(`${eligibleItems.length} PDFs added.`);
-        dialog.open();
+        var progressQueue = this.showProgressQueue();
 
         eligibleItems.forEach(async (item, idx) => {
             this.log(`Processing item ${idx}`);
             progressQueue.addRow(item);
-            const result = await this.replacePDF(item);
-            if (result.error === null) {
+            try {
+                const result = await this.replacePDF(item);
+                if (result.error === null) {
+                    progressQueue.updateRow(
+                        item.id,
+                        Zotero.ProgressQueue.ROW_SUCCEEDED,
+                        result.attachment.getField("title")
+                    );
+                }
+            } catch (error) {
                 progressQueue.updateRow(
                     item.id,
-                    Zotero.ProgressQueue.ROW_SUCCEEDED,
-                    result.attachment.getField("title")
+                    Zotero.ProgressQueue.ROW_FAILED,
+                    "Error"
                 );
             }
         });
