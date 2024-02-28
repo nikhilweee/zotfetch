@@ -116,6 +116,7 @@ Zotfetch = {
         // manually invoke "Find Available PDF"
         const newPDF = await Zotero.Attachments.addAvailablePDF(item);
         if (item.attachment) {
+            await Zotero.Attachments.createDirectoryForItem(item.attachment);
             await OS.File.move(
                 newPDF.getFilePath(),
                 item.attachment.getFilePath()
@@ -141,7 +142,7 @@ Zotfetch = {
     },
 
     showProgressQueue() {
-        const progressQueue = Zotero.ProgressQueues.get("zotfetch");
+        let progressQueue = Zotero.ProgressQueues.get("zotfetch");
         if (!progressQueue) {
             progressQueue = Zotero.ProgressQueues.create({
                 // TODO: Use terms from zotfetch.ftl
@@ -153,7 +154,7 @@ Zotfetch = {
             progressQueue.addListener("cancel", () => (queue = []));
         }
 
-        const dialog = progressQueue.getDialog();
+        let dialog = progressQueue.getDialog();
         dialog.showMinimizeButton(false);
         dialog.open();
         return { progressQueue: progressQueue, dialog: dialog };
