@@ -20,5 +20,4 @@ pack:                       ## Pack XPI
 run:                        ## Run Zotero
 	/Applications/Zotero.app/Contents/MacOS/zotero \
 	--debugger --purgecaches
-	# --ZoteroDebugText --jsconsole --debugger
 ## -----------------------------------------------------------------------------
