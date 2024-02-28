@@ -22,21 +22,28 @@ Zotfetch = {
     },
 
     addToWindow(window) {
-        let doc = window.document;
+        const doc = window.document;
 
         // Use Fluent for localization
         window.MozXULElement.insertFTLIfNeeded("zotfetch.ftl");
 
-        // Add menuitem
-        let menuitem = doc.createXULElement("menuitem");
-        menuitem.id = "zotfetch-menuitem";
-        menuitem.setAttribute("data-l10n-id", "zf-fetch");
-        menuitem.addEventListener("command", () => {
+        // Create XULElements
+        const menu = doc.createXULElement("menuitem");
+        menu.id = "zotfetch-contextmenu";
+        menu.setAttribute("data-l10n-id", "zf-fetch");
+        menu.addEventListener("command", () => {
             Zotfetch.fetchAttachments(window);
         });
-        // Add menuitem to Tools menu
-        doc.getElementById("menu_ToolsPopup").appendChild(menuitem);
-        this.storeAddedElement(menuitem);
+        const sep = doc.createXULElement("menuseparator");
+        sep.id = "zotfetch-separator";
+
+        // Add XULElements to menus
+        doc.getElementById("zotero-itemmenu").appendChild(sep);
+        doc.getElementById("zotero-itemmenu").appendChild(menu);
+
+        // Store reference to created elements
+        this.storeAddedElement(sep);
+        this.storeAddedElement(menu);
         this.currentWindow = window;
     },
 
@@ -94,7 +101,6 @@ Zotfetch = {
             const exists = await attachment.fileExists();
             fileExists.push(exists);
         }
-        this.log(fileExists);
         if (fileExists.length > 1) {
             return { eligible: false }; // multiple PDFs found
         }
@@ -106,7 +112,7 @@ Zotfetch = {
     },
 
     async replacePDF(item) {
-        this.log(`Updating PDF for ${item.getDisplayTitle()}`);
+        this.log(`Updating PDF: ${item.getDisplayTitle()}`);
         // manually invoke "Find Available PDF"
         const newPDF = await Zotero.Attachments.addAvailablePDF(item);
         if (item.attachment) {
@@ -135,7 +141,7 @@ Zotfetch = {
     },
 
     showProgressQueue() {
-        var progressQueue = Zotero.ProgressQueues.get("zotfetch");
+        const progressQueue = Zotero.ProgressQueues.get("zotfetch");
         if (!progressQueue) {
             progressQueue = Zotero.ProgressQueues.create({
                 // TODO: Use terms from zotfetch.ftl
@@ -145,25 +151,18 @@ Zotfetch = {
                 columns: ["general.item", "general.pdf"],
             });
             progressQueue.addListener("cancel", () => (queue = []));
-            // debugger;
         }
 
-        var dialog = progressQueue.getDialog();
+        const dialog = progressQueue.getDialog();
         dialog.showMinimizeButton(false);
-        // dialog.setStatus(`${eligibleItems.length} PDFs added.`);
         dialog.open();
-        this.currentWindow.console.log(Zotero.getMainWindows())
-        return progressQueue;
+        return { progressQueue: progressQueue, dialog: dialog };
     },
 
     async fetchAttachments() {
         Components.utils.import("resource://gre/modules/osfile.jsm");
 
-        // loop replacePDF() over all items in our library
-        const libraryID = Zotero.Libraries.userLibraryID;
-        // let items = await Zotero.Items.getAll(libraryID);
         let items = Zotero.getActiveZoteroPane().getSelectedItems();
-
         let eligibleItems = [];
         for (const item of items) {
             const result = await this.checkItem(item);
@@ -173,18 +172,17 @@ Zotfetch = {
             }
         }
 
-        // debugger;
-
-        // If no eligible items, show a popup
+        // If no eligible items, show popup and return
         if (!eligibleItems.length) {
             this.showProgressWindow();
             return;
         }
 
-        var progressQueue = this.showProgressQueue();
+        const { progressQueue, dialog } = this.showProgressQueue();
+        let numSuccess = 0;
 
-        eligibleItems.forEach(async (item, idx) => {
-            this.log(`Processing item ${idx}`);
+        // Add PDFs and update progress queue
+        const promises = eligibleItems.map(async (item) => {
             progressQueue.addRow(item);
             try {
                 const result = await this.replacePDF(item);
@@ -194,6 +192,7 @@ Zotfetch = {
                         Zotero.ProgressQueue.ROW_SUCCEEDED,
                         result.attachment.getField("title")
                     );
+                    numSuccess += 1;
                 }
             } catch (error) {
                 progressQueue.updateRow(
@@ -203,9 +202,17 @@ Zotfetch = {
                 );
             }
         });
+
+        // Wait for PDFs to download
+        await Promise.all(promises);
+
+        dialog.setStatus(`${numSuccess} PDFs added.`);
+        setTimeout(() => {
+            dialog.close();
+        }, 5000);
     },
 
     async main() {
-        this.log("Starting Zotfetch");
+        this.log("Startup");
     },
 };

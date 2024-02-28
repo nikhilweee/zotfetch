@@ -11,12 +11,6 @@ function install() {
 async function startup({ id, version, rootURI }) {
     log("Starting Zotfetch");
 
-    Zotero.PreferencePanes.register({
-        pluginID: "zotfetch@nikhilweee.me",
-        src: rootURI + "preferences.xhtml",
-        scripts: [rootURI + "preferences.js"],
-    });
-
     Services.scriptloader.loadSubScript(rootURI + "zotfetch.js");
     Zotfetch.init({ id, version, rootURI });
     Zotfetch.addToAllWindows();
@@ -32,7 +26,7 @@ function onMainWindowUnload({ window }) {
 }
 
 function shutdown() {
-    log("Shutting down Zotfetch");
+    log("Shutdown");
     Zotfetch.removeFromAllWindows();
     Zotfetch = undefined;
 }
