@@ -2,8 +2,7 @@
 
 A Zotero plugin to fetch and relocate missing attachments.
 
-How is this different from Zotero's built in feature "Find Available PDFs"
-(FAP)?
+**How is this different from Zotero's "Find Available PDFs" (FAP)?**
 
 FAP only appears in the context menu of a Zotero item if a PDF entry does not
 exist in Zotero's database. If a PDF entry exists while the PDF file itself is
