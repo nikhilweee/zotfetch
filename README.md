@@ -1,6 +1,6 @@
 # zotfetch
 
-A Zotero plugin to fetch and relocate missing attachments.
+A Zotero 7 plugin to fetch and relocate missing attachments.
 
 **Installation**
 
