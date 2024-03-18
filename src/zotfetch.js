@@ -142,22 +142,36 @@ Zotfetch = {
     },
 
     showProgressQueue() {
-        let progressQueue = Zotero.ProgressQueues.get("zotfetch");
-        if (!progressQueue) {
-            progressQueue = Zotero.ProgressQueues.create({
+        let queue = Zotero.ProgressQueues.get("zotfetch");
+        if (!queue) {
+            queue = Zotero.ProgressQueues.create({
                 // TODO: Use terms from zotfetch.ftl
                 id: "zotfetch",
-                title: "pane.items.menu.findAvailablePDF.multiple",
+                title: "findPDF.searchingForAvailablePDFs",
                 // title: "zf-relocate",
                 columns: ["general.item", "general.pdf"],
             });
-            progressQueue.addListener("cancel", () => (queue = []));
+            queue.addListener("cancel", () => (queue = []));
         }
 
-        let dialog = progressQueue.getDialog();
+        let dialog = queue.getDialog();
         dialog.showMinimizeButton(false);
         dialog.open();
-        return { progressQueue: progressQueue, dialog: dialog };
+
+        // Set title of progress window manually
+        // TODO: Check if this has been implemented natively
+        // let window = null;
+        // const we = Services.ww.getWindowEnumerator();
+        // while (we.hasMoreElements()) {
+        //     window = we.getNext();
+        //     if (window.arguments?.[0]?.progressQueue?.getID() == "zotfetch") {
+        //         // Setting window.document.title here is overridden later
+        //         window.document.title = "Zotfetch: Relocate";
+        //         break;
+        //     }
+        // }
+
+        return queue;
     },
 
     async fetchAttachments() {
@@ -179,16 +193,16 @@ Zotfetch = {
             return;
         }
 
-        const { progressQueue, dialog } = this.showProgressQueue();
+        const queue = this.showProgressQueue();
         let numSuccess = 0;
 
         // Add PDFs and update progress queue
         const promises = eligibleItems.map(async (item) => {
-            progressQueue.addRow(item);
+            queue.addRow(item);
             try {
                 const result = await this.replacePDF(item);
                 if (result.error === null) {
-                    progressQueue.updateRow(
+                    queue.updateRow(
                         item.id,
                         Zotero.ProgressQueue.ROW_SUCCEEDED,
                         result.attachment.getField("title")
@@ -196,7 +210,7 @@ Zotfetch = {
                     numSuccess += 1;
                 }
             } catch (error) {
-                progressQueue.updateRow(
+                queue.updateRow(
                     item.id,
                     Zotero.ProgressQueue.ROW_FAILED,
                     "Error"
@@ -207,10 +221,7 @@ Zotfetch = {
         // Wait for PDFs to download
         await Promise.all(promises);
 
-        dialog.setStatus(`${numSuccess} PDFs added.`);
-        setTimeout(() => {
-            dialog.close();
-        }, 5000);
+        queue.getDialog().setStatus(`${numSuccess} PDFs added.`);
     },
 
     async main() {

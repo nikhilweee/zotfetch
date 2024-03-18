@@ -63,8 +63,8 @@ devtools in a new tab.
 
 **Reloading the Addon**
 
-When you need to reload the addon, refresh the tab and run the following script
-in the console.
+When you need to reload the addon, refresh the devtools tab in Firefox and run
+the following script in the console.
 
 ```js
 Services.obs.notifyObservers(null, "startupcache-invalidate", null);
