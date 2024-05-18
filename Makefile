@@ -17,7 +17,10 @@ help:                       ## Show this help
 pack:                       ## Pack XPI
 	cd src && zip -r ../zotfetch.xpi *
 
-run:                        ## Run Zotero
+debug:                      ## Run Zotero with Debugger
 	/Applications/Zotero.app/Contents/MacOS/zotero \
 	--debugger --purgecaches
+profile:                    ## Run Zotero with Profile Manager
+	/Applications/Zotero.app/Contents/MacOS/zotero \
+	--ProfileManager
 ## -----------------------------------------------------------------------------

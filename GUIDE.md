@@ -38,7 +38,8 @@ First, create a new Zotero profile for use during development. This will make
 sure your library remains unaffected if things go wrong.
 
 ```console
-$ /Applications/Zotero.app/Contents/MacOS/zotero --ProfileManager
+$ /Applications/Zotero.app/Contents/MacOS/zotero \
+    --ProfileManager
 ```
 
 Next, create a text file in the `extensions` directory of this new profile
@@ -96,6 +97,8 @@ await reloadAddon(addon);
     https://github.com/topics/zotero-plugin
 -   Tool for automatic reloading of plugins  
     https://github.com/retorquere/zotero-better-bibtex/tree/master/test/fixtures/debug-bridge
+-   Keep track of the latest Firefox ESR releases  
+    https://whattrainisitnow.com/release/?version=esr
 
 ## Older Documentation
 

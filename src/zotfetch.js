@@ -85,7 +85,7 @@ Zotfetch = {
     async checkItem(item) {
         // filter annotations, attachments, notes
         if (!item.isRegularItem()) {
-            return { eligible: false };
+            return { eligible: false, reason: null };
         }
         let fileExists = [];
         let oldPDF = null;
@@ -102,10 +102,16 @@ Zotfetch = {
             fileExists.push(exists);
         }
         if (fileExists.length > 1) {
-            return { eligible: false }; // multiple PDFs found
+            return {
+                eligible: false,
+                reason: `${item.getDisplayTitle()}: Multiple PDFs found.`,
+            };
         }
         if (fileExists.pop()) {
-            return { eligible: false }; // PDF already exists
+            return {
+                eligible: false,
+                reason: `${item.getDisplayTitle()}: PDF already exists.`,
+            };
         }
 
         return { eligible: true, attachment: oldPDF };
@@ -117,7 +123,7 @@ Zotfetch = {
         const newPDF = await Zotero.Attachments.addAvailablePDF(item);
         if (item.attachment) {
             await Zotero.Attachments.createDirectoryForItem(item.attachment);
-            await OS.File.move(
+            await IOUtils.move(
                 newPDF.getFilePath(),
                 item.attachment.getFilePath()
             );
@@ -126,18 +132,16 @@ Zotfetch = {
         return { error: null, attachment: newPDF };
     },
 
-    showProgressWindow() {
-        let icon = "chrome://zotero/skin/treeitem-attachment-pdf.png";
+    showProgressWindow(message) {
         let progressWin = new Zotero.ProgressWindow();
         let title = "ZotFetch";
         progressWin.changeHeadline(title);
         let itemProgress = new progressWin.ItemProgress(
-            icon,
-            "No items to relocate!"
+            "attachmentPDF",
+            message
         );
         progressWin.show();
         itemProgress.setProgress(100);
-        itemProgress.setIcon(icon);
         progressWin.startCloseTimer(4000);
     },
 
@@ -175,21 +179,22 @@ Zotfetch = {
     },
 
     async fetchAttachments() {
-        Components.utils.import("resource://gre/modules/osfile.jsm");
-
         let items = Zotero.getActiveZoteroPane().getSelectedItems();
         let eligibleItems = [];
+        let reason = "No items to relocate.";
         for (const item of items) {
             const result = await this.checkItem(item);
             if (result.eligible) {
                 item.attachment = result.attachment;
                 eligibleItems.push(item);
+            } else if (result.reason) {
+                reason = result.reason;
             }
         }
 
         // If no eligible items, show popup and return
         if (!eligibleItems.length) {
-            this.showProgressWindow();
+            this.showProgressWindow(reason);
             return;
         }
 
